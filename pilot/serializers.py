@@ -1,5 +1,7 @@
 from rest_framework.serializers import serializers
+
 from pilot.models import Repository
+
 
 class RepositorySerializer(serializers.ModelSerializer):
     """
@@ -12,6 +14,7 @@ class RepositorySerializer(serializers.ModelSerializer):
         fields (list): The fields to be included in the serialized output.
 
     """
+
     class Meta:
         model = Repository
         fields = ["name", "repository_type", "owner"]

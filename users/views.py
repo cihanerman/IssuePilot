@@ -1,11 +1,13 @@
+from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from users.models import User
 from users.serializers import CreateUserSerializer, UpdateUserSerializer
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.response import Response
-from rest_framework import status
 from users.service import UserService
+
 
 class CreateUserView(APIView):
     """
@@ -38,7 +40,7 @@ class CreateUserView(APIView):
         serializer.is_valid(raise_exception=True)
         self.service.create_user(**serializer.validated_data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
 
 class UpdateUserView(APIView):
     """
@@ -52,6 +54,7 @@ class UpdateUserView(APIView):
         queryset (QuerySet): The queryset of User objects.
         serializer_class (Serializer): The serializer class for updating users.
     """
+
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     queryset = User.objects.all()
@@ -70,6 +73,6 @@ class UpdateUserView(APIView):
         """
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.validated_data['username'] = request.user.username
+        serializer.validated_data["username"] = request.user.username
         self.service.update_user(**serializer.validated_data)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -1,5 +1,6 @@
 from enum import IntEnum
 
+
 class RepositoryTypes(IntEnum):
     GITHUB = 1
 

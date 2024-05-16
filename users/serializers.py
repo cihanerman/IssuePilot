@@ -1,6 +1,8 @@
-from users.models import User
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+
+from users.models import User  # noqa
+
 
 class CreateUserSerializer(serializers.ModelSerializer):
     """
@@ -14,18 +16,17 @@ class CreateUserSerializer(serializers.ModelSerializer):
         fields (list): The list of fields to be included in the serialized representation.
 
     """
+
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ["username", "email", "password", "github_token"]
+        extra_kwargs = {"password": {"write_only": True}}
         validators = [
             UniqueTogetherValidator(
-                queryset=User.objects.all(),
-                fields=['username', 'email']
+                queryset=User.objects.all(), fields=["username", "email"]
             )
         ]
-    
-    
+
 
 class UpdateUserSerializer(serializers.ModelSerializer):
     """
@@ -39,7 +40,8 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         fields (list): The list of fields to be included in the serialized representation.
 
     """
+
     class Meta:
         model = User
-        fields = ['email', 'github_token']
-        extra_kwargs = {'github_tokens': {'write_only': True}}
+        fields = ["email", "github_token"]
+        extra_kwargs = {"github_tokens": {"write_only": True}}

@@ -1,14 +1,16 @@
+from pilot.clients import GitHubClient
 from pilot.models import Repository
 from users.models import User
-from pilot.clients import GitHubClient
 
-class RepositoryService():
+
+class RepositoryService:
     """
     Service class for managing repositories.
     """
+
     client = GitHubClient()
 
-    def new_repository(self, data: dict) -> Repository:
+    def new_repository(self, data: dict) -> Repository | None:
         """
         Creates a new repository if it doesn't exist, or returns an existing repository.
 
@@ -19,13 +21,17 @@ class RepositoryService():
             Repository: The created or existing repository object.
         """
         try:
-            repository = Repository.objects.get(name=data['name'], repository_type=data['repository_type'])
+            repository = Repository.objects.get(
+                name=data["name"], repository_type=data["repository_type"]
+            )
             return repository
         except Repository.DoesNotExist:
-            self.check_repository_data(data)
+            is_there = self.check_repository_data(data)
+            if not is_there:
+                return None
             repository = Repository.objects.create(**data)
         return repository
-    
+
     def subscribe_repository(self, user: User, data: dict):
         """
         Subscribes a user to a repository.

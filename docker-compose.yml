@@ -67,3 +67,9 @@ services:
   #     - DB_HOST=db
   #     - DB_PORT=5432
   #     - REDIS_URL=redis://redis:6379/0
+
+  # mailhog:
+  #   image: mailhog/mailhog
+  #   ports:
+  #     - "8025:8025"
+  #     - "1025:1025"

@@ -1,8 +1,11 @@
-import pytest
-from users.service import UserService
-from users.serializers import CreateUserSerializer, UpdateUserSerializer
-from users.utils import encrypt_data, decrypt_data
 import json
+
+import pytest
+
+from users.serializers import CreateUserSerializer, UpdateUserSerializer
+from users.service import UserService
+from users.utils import decrypt_data, encrypt_data
+
 
 @pytest.mark.django_db
 def test_user_create_service():
@@ -21,17 +24,18 @@ def test_user_create_service():
     """
 
     data = {
-        'username': 'test_user',
-        'email': 'test@gmail.com',
-        'password': 'test_password',
-        "github_token": "test_token"
+        "username": "test_user",
+        "email": "test@gmail.com",
+        "password": "test_password",
+        "github_token": "test_token",
     }
     serializer = CreateUserSerializer(data=data)
-    assert serializer.is_valid() == True
-    
+    assert serializer.is_valid()
+
     service = UserService()
     user = service.create_user(**serializer.validated_data)
     assert user.pk is not None
+
 
 @pytest.mark.django_db
 def test_user_update_service():
@@ -50,26 +54,26 @@ def test_user_update_service():
     7. Assert that the user's email and GitHub token are updated correctly.
     """
     data = {
-        'username': 'test_user',
-        'email': 'test@gmail.com',
-        'password': 'test_password',
-        "github_token": "test_token"
+        "username": "test_user",
+        "email": "test@gmail.com",
+        "password": "test_password",
+        "github_token": "test_token",
     }
-    
+
     service = UserService()
     service.create_user(**data)
-    
+
     data.pop("password")
     data.pop("github_token")
-    data['email'] = 'test_update@gmail.com'
-    
+    data["email"] = "test_update@gmail.com"
+
     serializer = UpdateUserSerializer(data=data)
-    assert serializer.is_valid() == True
-    serializer.validated_data['username'] = 'test_user'
-    
+    assert serializer.is_valid()
+    serializer.validated_data["username"] = "test_user"
+
     service = UserService()
     user = service.update_user(**serializer.validated_data)
-    assert user.email == data['email']
+    assert user.email == data["email"]
 
 
 @pytest.mark.django_db
@@ -88,18 +92,19 @@ def test_create_user_view(client):
         None
     """
     data = {
-        'username': 'test_user1',
-        'email': 'test1@gmail.com',
-        'password': 'test_password1'
+        "username": "test_user1",
+        "email": "test1@gmail.com",
+        "password": "test_password1",
     }
-    
-    response = client.post('/api/v1/users/register/', data)
+
+    response = client.post("/api/v1/users/register/", data)
     assert response.status_code == 201
-    
+
     data.pop("email")
-    
-    response = client.post('/api/v1/users/register/', data)
+
+    response = client.post("/api/v1/users/register/", data)
     assert response.status_code == 400
+
 
 @pytest.mark.django_db
 def test_update_user_view(client):
@@ -116,31 +121,32 @@ def test_update_user_view(client):
     Returns:
         None
     """
-    
+
     user_data = {
-        'username': 'test_user1',
-        'email': 'test1@gmail.com',
-        'password': 'test_password1',
-        "github_token": "test_token"
+        "username": "test_user1",
+        "email": "test1@gmail.com",
+        "password": "test_password1",
+        "github_token": "test_token",
     }
     service = UserService()
     service.create_user(**user_data)
-    
+
     user_data.pop("email")
     user_data.pop("github_token")
-    
-    
-    
-    response = client.post('/api-token-auth/', user_data)
+
+    response = client.post("/api-token-auth/", user_data)
     response_data = response.json()
-    token = response_data.get('token')
+    token = response_data.get("token")
     headers = {"Authorization": f"Token {token}", "Content-Type": "application/json"}
-    
+
     user_data.pop("password")
-    user_data['email'] = 'test_update@gmail.com'
-    
-    response = client.put('/api/v1/users/update/', json.dumps(user_data), headers=headers)
+    user_data["email"] = "test_update@gmail.com"
+
+    response = client.put(
+        "/api/v1/users/update/", json.dumps(user_data), headers=headers
+    )
     assert response.status_code == 200
+
 
 def test_encrypt_data_and_decrypt_data():
     """
@@ -159,4 +165,3 @@ def test_encrypt_data_and_decrypt_data():
     encrypted_string = encrypt_data(test_string)
     decrypted_string = decrypt_data(encrypted_string)
     assert decrypted_string == test_string
-     

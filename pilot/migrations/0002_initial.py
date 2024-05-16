@@ -5,26 +5,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('pilot', '0001_initial'),
+        ("pilot", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='repository',
-            name='users',
-            field=models.ManyToManyField(related_name='repositories', to=settings.AUTH_USER_MODEL),
+            model_name="repository",
+            name="users",
+            field=models.ManyToManyField(
+                related_name="repositories", to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddIndex(
-            model_name='repository',
-            index=models.Index(fields=['name'], name='pilot_repos_name_080e37_idx'),
+            model_name="repository",
+            index=models.Index(fields=["name"], name="pilot_repos_name_080e37_idx"),
         ),
         migrations.AlterUniqueTogether(
-            name='repository',
-            unique_together={('name', 'repository_type')},
+            name="repository",
+            unique_together={("name", "repository_type")},
         ),
     ]

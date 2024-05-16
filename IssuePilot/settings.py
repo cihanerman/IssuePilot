@@ -10,9 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-from pathlib import Path
 import os
-
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,11 +21,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', default='django-insecure-6(s^gn)s0$2n0fexf^to5&ijtjz0m&icg=(g5+edf0(2fo#xma')
-FERNET_KEY = os.getenv('FERNET_KEY', default='it6z-YZR660j09yfZAGFv3d5bKwWeWIE3Gmw7zxuXnM=')
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    default="django-insecure-6(s^gn)s0$2n0fexf^to5&ijtjz0m&icg=(g5+edf0(2fo#xma",
+)
+FERNET_KEY = os.getenv(
+    "FERNET_KEY", default="it6z-YZR660j09yfZAGFv3d5bKwWeWIE3Gmw7zxuXnM="
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', default=True)
+DEBUG = os.getenv("DEBUG", default=True)
 
 ALLOWED_HOSTS = ["*"]
 
@@ -34,65 +38,65 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     # Local apps
-    'pilot',
-    'users',
+    "pilot",
+    "users",
     # Third party apps
-    'rest_framework',
-    'rest_framework.authtoken',
-    'django_celery_results',
+    "rest_framework",
+    "rest_framework.authtoken",
+    "django_celery_results",
 ]
 
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'IssuePilot.urls'
-AUTH_USER_MODEL = 'users.User'
+ROOT_URLCONF = "IssuePilot.urls"
+AUTH_USER_MODEL = "users.User"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'IssuePilot.wsgi.application'
+WSGI_APPLICATION = "IssuePilot.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default':{
+    "default": {
         "ENGINE": "django.db.backends.postgresql",
-        'NAME': os.getenv('DB_NAME', default='pilot'),
-        'USER': os.getenv('DB_USER', default='postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', default='password'),
-        'HOST': os.getenv('DB_HOST', default='localhost'),
-        'PORT': os.getenv('DB_PORT', default='5432'),
+        "NAME": os.getenv("DB_NAME", default="pilot"),
+        "USER": os.getenv("DB_USER", default="postgres"),
+        "PASSWORD": os.getenv("DB_PASSWORD", default="password"),
+        "HOST": os.getenv("DB_HOST", default="localhost"),
+        "PORT": os.getenv("DB_PORT", default="5432"),
     }
 }
 
@@ -102,16 +106,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -119,9 +123,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = os.getenv('TIMEZONE', default='Europe/Istanbul')
+TIME_ZONE = os.getenv("TIMEZONE", default="Europe/Istanbul")
 
 USE_I18N = True
 
@@ -131,26 +135,48 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": os.getenv('REDIS_URL', default='redis://localhost:6379/1'),
+        "LOCATION": os.getenv("REDIS_URL", default="redis://localhost:6379/1"),
     }
 }
 
 # Celery Configuration Options
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', default='django-db')
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', default=os.getenv('REDIS_URL', default='redis://localhost:6379/1'))
-CELERY_TIMEZONE = os.getenv('TIMEZONE', default='Europe/Istanbul')
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", default="django-db")
+CELERY_BROKER_URL = os.getenv(
+    "CELERY_BROKER_URL",
+    default=os.getenv("REDIS_URL", default="redis://localhost:6379/1"),
+)
+CELERY_TIMEZONE = os.getenv("TIMEZONE", default="Europe/Istanbul")
 # CELERY_TASK_TRACK_STARTED = True
 # CELERY_TASK_TIME_LIMIT = 30 * 60
 # CELERY_RESULT_SERIALIZER = 'json'
 # CELERY_TASK_SERIALIZER = 'json'
 # CELERY_ACCEPT_CONTENT = ['application/json']
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "formatters": {
+        "verbose": {"format": "%(levelname)s %(asctime)s %(module)s %(message)s"},
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}

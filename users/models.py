@@ -1,7 +1,8 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models  # noqa
 from django.utils.translation import gettext_lazy as _
-from users.utils import encrypt_data, decrypt_data
+
+from users.utils import decrypt_data, encrypt_data
 
 
 # Create your models here.
@@ -13,7 +14,7 @@ class User(AbstractUser):
 
     email = models.EmailField(_("email address"), unique=True)
     github_token = models.CharField(max_length=255, blank=True, null=True)
-    
+
     def set_github_token(self, token: str):
         """
         Sets the GitHub token for the user.
@@ -24,7 +25,7 @@ class User(AbstractUser):
         token = encrypt_data(token)
         self.github_token = token
         self.save()
-    
+
     def get_github_token(self) -> str:
         """
         Retrieves the decrypted GitHub token for the user.
@@ -33,5 +34,3 @@ class User(AbstractUser):
             str: The decrypted GitHub token.
         """
         return decrypt_data(self.github_token)
-        
-        
