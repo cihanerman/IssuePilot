@@ -33,21 +33,9 @@ class BaseClient(ABC):
         pass
 
     @abstractmethod
-    def get_updated_issues(self, repo_name: str, owner: str, token: str) -> list:
-        """Get a list of updated issues in a repository.
-
-        Args:
-            repo_name (str): The name of the repository.
-            owner (str): The owner of the repository.
-            token (str): The authentication token.
-
-        Returns:
-            list: A list of updated issues.
-        """
-        pass
-
-    @abstractmethod
-    def check_update_issues(self, repo_name: str, owner: str, token: str) -> bool:
+    def check_create_or_update_issues(
+        self, repo_name: str, owner: str, token: str
+    ) -> bool:
         """Check if there are any updated issues in a repository.
 
         Args:
@@ -98,7 +86,7 @@ class GitHubClient(BaseClient):
     """
 
     repository_url = "https://api.github.com/repos/{owner}/{repo}"
-    issues_url = "https://api.github.com/repos/{owner}/{repo}/issues?since={since}&per_page={per_page}"
+    issues_url = "https://api.github.com/repos/{owner}/{repo}/issues?since={since}&per_page={per_page}&state=open"
     timeline_url = "https://api.github.com/repos/{owner}/{repo}/issues/{issue_id}/timeline&per_page={per_page}"
     headers = {
         "Accept": "application/vnd.github+json",
@@ -164,11 +152,13 @@ class GitHubClient(BaseClient):
         ):
             raise TooManyRequestException(RepositoryTypes.GITHUB.name)
         response.raise_for_status()
-        cache.set(cache_key, response.status_code == 200, 60)
+        cache.set(cache_key, response.status_code == 200, 10)
 
         return response.status_code == 200
 
-    def check_update_issues(self, repo_name: str, owner: str, token: str) -> bool:
+    def check_create_or_update_issues(
+        self, repo_name: str, owner: str, token: str
+    ) -> bool:
         """
         Checks if there are any updated issues in a repository.
 
@@ -210,61 +200,6 @@ class GitHubClient(BaseClient):
         result = len(response_data) > 0 and response.status_code == 200
         cache.set(cache_key, result, 60 * 60)
         return result
-
-    def get_updated_issues(self, repo_name: str, owner: str, token: str) -> list:
-        """
-        Retrieves the updated issues in a repository.
-
-        Args:
-            repo_name (str): The name of the repository.
-            owner (str): The owner of the repository.
-            token (str): The access token for authentication.
-
-        Returns:
-            list: A list of updated issues.
-        """
-        cache_key = f"{owner}_{repo_name}_issues_data"
-        cache_value = cache.get(cache_key)
-        if cache_value:
-            return json.loads(cache_value)
-
-        url = self.issues_url.format(
-            owner=owner, repo=repo_name, since=self._get_since(), per_page=100
-        )
-        self.headers["Authorization"] = self.headers["Authorization"].format(
-            token=token
-        )
-
-        issues = []
-        while url:
-            response = self.session.get(url, headers=self.headers)
-            logger.info(
-                f"Github Url: {url}",
-                extra={
-                    "status_code": response.status_code,
-                    "headers": response.headers,
-                },
-            )
-
-            if (
-                response.status_code in (429, 403)
-                and response.headers.get("X-RateLimit-Remaining") == "0"
-            ):
-                break
-            if response.status_code != 200:
-                break
-            issues.extend(response.json())
-            links = response.headers.get("Link")
-
-            if not links:
-                break
-
-            links = requests.utils.parse_header_links(links)
-            url = {link["rel"]: link["url"] for link in links}.get("next", None)
-
-        cache.set(cache_key, json.dumps(issues), 60 * 60)
-
-        return issues
 
     def get_issue_timeline(
         self, repo_name: str, owner: str, issue_id: int | str, token: str
@@ -308,9 +243,9 @@ class GitHubClient(BaseClient):
                 response.status_code in (429, 403)
                 and response.headers.get("X-RateLimit-Remaining") == "0"
             ):
-                break
+                raise TooManyRequestException(RepositoryTypes.GITHUB.name)
             if response.status_code != 200:
-                break
+                response.raise_for_status()
             timeline.extend(response.json())
             links = response.headers.get("Link")
 

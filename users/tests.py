@@ -1,10 +1,15 @@
-import json
-
 import pytest
 
 from users.serializers import CreateUserSerializer, UpdateUserSerializer
 from users.service import UserService
 from users.utils import decrypt_data, encrypt_data
+
+
+@pytest.fixture
+def api_client():
+    from rest_framework.test import APIClient
+
+    return APIClient()
 
 
 @pytest.mark.django_db
@@ -77,7 +82,7 @@ def test_user_update_service():
 
 
 @pytest.mark.django_db
-def test_create_user_view(client):
+def test_create_user_view(api_client):
     """
     Test case for the create user view.
 
@@ -97,17 +102,17 @@ def test_create_user_view(client):
         "password": "test_password1",
     }
 
-    response = client.post("/api/v1/users/register/", data)
+    response = api_client.post("/api/v1/users/register/", data)
     assert response.status_code == 201
 
     data.pop("email")
 
-    response = client.post("/api/v1/users/register/", data)
+    response = api_client.post("/api/v1/users/register/", data)
     assert response.status_code == 400
 
 
 @pytest.mark.django_db
-def test_update_user_view(client):
+def test_update_user_view(api_client):
     """
     Test case for the update user view.
 
@@ -134,7 +139,7 @@ def test_update_user_view(client):
     user_data.pop("email")
     user_data.pop("github_token")
 
-    response = client.post("/api-token-auth/", user_data)
+    response = api_client.post("/api-token-auth/", user_data)
     response_data = response.json()
     token = response_data.get("token")
     headers = {"Authorization": f"Token {token}", "Content-Type": "application/json"}
@@ -142,9 +147,10 @@ def test_update_user_view(client):
     user_data.pop("password")
     user_data["email"] = "test_update@gmail.com"
 
-    response = client.put(
-        "/api/v1/users/update/", json.dumps(user_data), headers=headers
+    response = api_client.put(
+        "/api/v1/users/update/", data=user_data, headers=headers, format="json"
     )
+
     assert response.status_code == 200
 
 

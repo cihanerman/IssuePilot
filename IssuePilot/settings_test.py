@@ -1,8 +1,8 @@
 import os
 
-from .settings import * # noqa
+from .settings import *  # noqa
 
-DATABASES["default"].update(
+DATABASES["default"].update(  # noqa
     {
         "NAME": os.getenv("DB_NAME", default="test_pilot"),
         "USER": os.getenv("DB_USER", default="postgres"),
