@@ -10,7 +10,7 @@ class RepositoryService:
 
     client = GitHubClient()
 
-    def new_repository(self, data: dict) -> Repository | None:
+    def get_or_create_repository(self, data: dict) -> Repository | None:
         """
         Creates a new repository if it doesn't exist, or returns an existing repository.
 
@@ -26,13 +26,13 @@ class RepositoryService:
             )
             return repository
         except Repository.DoesNotExist:
-            is_there = self.check_repository_data(data)
+            is_there = self.client.check_repository(data)
             if not is_there:
                 return None
             repository = Repository.objects.create(**data)
         return repository
 
-    def subscribe_repository(self, user: User, data: dict):
+    def subscribe_repository(self, user: User, data: dict) -> bool:
         """
         Subscribes a user to a repository.
 
@@ -40,5 +40,8 @@ class RepositoryService:
             user: The user object.
             data (dict): A dictionary containing the repository data.
         """
-        repository = self.new_repository(**data)
+        repository = self.get_or_create_repository(data)
+        if not repository:
+            return False
         repository.users.add(user)
+        return True

@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 
 from users.models import User
 from users.serializers import CreateUserSerializer, UpdateUserSerializer
-from users.service import UserService
+from users.services import UserService
 
 
 class CreateUserView(APIView):

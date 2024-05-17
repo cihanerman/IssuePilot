@@ -1,7 +1,7 @@
 import pytest
 
 from users.serializers import CreateUserSerializer, UpdateUserSerializer
-from users.service import UserService
+from users.services import UserService
 from users.utils import decrypt_data, encrypt_data
 
 

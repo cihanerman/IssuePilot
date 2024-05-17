@@ -1,4 +1,4 @@
-from rest_framework.serializers import serializers
+from rest_framework import serializers
 
 from pilot.models import Repository
 
