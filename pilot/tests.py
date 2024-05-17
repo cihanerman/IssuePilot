@@ -6,6 +6,7 @@ from pilot.enums import RepositoryTypes
 from pilot.exceptions import TooManyRequestException
 from pilot.serializers import RepositorySerializer
 from pilot.services import RepositoryService
+from users.services import UserService
 
 
 @pytest.fixture
@@ -16,6 +17,11 @@ def github_client() -> GitHubClient:
 @pytest.fixture
 def repository_service() -> RepositoryService:
     return RepositoryService()
+
+
+@pytest.fixture
+def user_service() -> UserService:
+    return UserService()
 
 
 user_data = {
@@ -172,7 +178,7 @@ check_repository_map = {
 
 
 def get_repository_mock(*args, **kwargs):
-    return check_repository_map.get(args[0].get("name"))
+    return check_repository_map.get(args[0])
 
 
 @pytest.mark.django_db
@@ -180,10 +186,13 @@ def test_get_or_create_repository_success(repository_service, monkeypatch):
     data = {
         "name": "test",
         "repository_type": RepositoryTypes.GITHUB.value,
+        "owner": "test",
+        "token": "test_token",
     }
     monkeypatch.setattr(
         repository_service.client, "check_repository", get_repository_mock
     )
+
     repository = repository_service.get_or_create_repository(data)
     assert repository is not None
 
@@ -193,6 +202,8 @@ def test_get_or_create_repository_failure(repository_service, monkeypatch):
     data = {
         "name": "test1",
         "repository_type": RepositoryTypes.GITHUB.value,
+        "owner": "test",
+        "token": "test_token",
     }
     monkeypatch.setattr(
         repository_service.client, "check_repository", get_repository_mock
@@ -202,9 +213,7 @@ def test_get_or_create_repository_failure(repository_service, monkeypatch):
 
 
 @pytest.mark.django_db
-def test_subscribe_repository_success(
-    repository_service, django_user_model, monkeypatch
-):
+def test_subscribe_repository_success(repository_service, user_service, monkeypatch):
     data = {
         "name": "test",
         "repository_type": RepositoryTypes.GITHUB.value,
@@ -216,7 +225,7 @@ def test_subscribe_repository_success(
 
     serializer = RepositorySerializer(data=data)
     assert serializer.is_valid()
-    user = django_user_model.objects.create_user(**user_data)
+    user = user_service.create_user(**user_data)
     is_subscribe = repository_service.subscribe_repository(
         user, serializer.validated_data
     )
@@ -224,9 +233,7 @@ def test_subscribe_repository_success(
 
 
 @pytest.mark.django_db
-def test_subscribe_repository_failure(
-    repository_service, django_user_model, monkeypatch
-):
+def test_subscribe_repository_failure(repository_service, user_service, monkeypatch):
     data = {
         "name": "test1",
         "repository_type": RepositoryTypes.GITHUB.value,
@@ -239,8 +246,42 @@ def test_subscribe_repository_failure(
     serializer = RepositorySerializer(data=data)
     assert serializer.is_valid()
 
-    user = django_user_model.objects.create_user(**user_data)
+    user = user_service.create_user(**user_data)
     is_subscribe = repository_service.subscribe_repository(
         user, serializer.validated_data
     )
     assert not is_subscribe
+
+
+@pytest.mark.django_db
+def test_unsubscribe_repository_success(repository_service, user_service, monkeypatch):
+    monkeypatch.setattr(
+        repository_service.client, "check_repository", get_repository_mock
+    )
+    user = user_service.create_user(**user_data)
+    repository_service.subscribe_repository(
+        user,
+        data={
+            "name": "test",
+            "repository_type": RepositoryTypes.GITHUB.value,
+            "owner": "test",
+        },
+    )
+    assert repository_service.unsubscribe_repository(user, "test")
+
+
+@pytest.mark.django_db
+def test_unsubscribe_repository_failure(repository_service, user_service, monkeypatch):
+    monkeypatch.setattr(
+        repository_service.client, "check_repository", get_repository_mock
+    )
+    user = user_service.create_user(**user_data)
+    repository_service.subscribe_repository(
+        user,
+        data={
+            "name": "test1",
+            "repository_type": RepositoryTypes.GITHUB.value,
+            "owner": "test",
+        },
+    )
+    assert not repository_service.unsubscribe_repository(user, "test1")
