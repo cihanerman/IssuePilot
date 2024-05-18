@@ -5,13 +5,6 @@ from users.services import UserService
 from users.utils import decrypt_data, encrypt_data
 
 
-@pytest.fixture
-def api_client():
-    from rest_framework.test import APIClient
-
-    return APIClient()
-
-
 @pytest.mark.django_db
 def test_user_create_service():
     """

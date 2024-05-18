@@ -285,3 +285,71 @@ def test_unsubscribe_repository_failure(repository_service, user_service, monkey
         },
     )
     assert not repository_service.unsubscribe_repository(user, "test1")
+
+
+@pytest.mark.django_db
+def test_repository_view_post_success(
+    api_client, user_service, monkeypatch, repository_service
+):
+    monkeypatch.setattr(
+        repository_service.client, "check_repository", get_repository_mock
+    )
+
+    user = user_service.create_user(**user_data)
+    api_client.force_authenticate(user=user)
+    data = {
+        "name": "test",
+        "repository_type": RepositoryTypes.GITHUB.value,
+        "owner": "test",
+    }
+    response = api_client.post("/api/v1/repositories/subscribe/", data)
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_repository_view_post_failure(
+    api_client, user_service, monkeypatch, repository_service
+):
+    monkeypatch.setattr(
+        repository_service.client, "check_repository", get_repository_mock
+    )
+
+    user = user_service.create_user(**user_data)
+    api_client.force_authenticate(user=user)
+    data = {
+        "name": "test1",
+        "repository_type": RepositoryTypes.GITHUB.value,
+        "owner": "test",
+    }
+    response = api_client.post("/api/v1/repositories/subscribe/", data)
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_repository_view_delete_success(
+    api_client, user_service, monkeypatch, repository_service
+):
+    monkeypatch.setattr(
+        repository_service.client, "check_repository", get_repository_mock
+    )
+
+    user = user_service.create_user(**user_data)
+    api_client.force_authenticate(user=user)
+    repository_service.subscribe_repository(
+        user,
+        data={
+            "name": "test",
+            "repository_type": RepositoryTypes.GITHUB.value,
+            "owner": "test",
+        },
+    )
+    response = api_client.delete("/api/v1/repositories/unsubscribe/test/")
+    assert response.status_code == 204
+
+
+@pytest.mark.django_db
+def test_repository_view_delete_failure(api_client, user_service):
+    user = user_service.create_user(**user_data)
+    api_client.force_authenticate(user=user)
+    response = api_client.delete("/api/v1/repositories/unsubscribe/test1/")
+    assert response.status_code == 404

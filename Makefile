@@ -1,7 +1,8 @@
 target: fix isort format
 test:
 	pytest -v
-
+test-coverage:
+	coverage run -m pytest -v && coverage report -m
 run:
 	python manage.py runserver
 

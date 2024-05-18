@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from pilot.exceptions import RepositoryNotFoundException
 from pilot.serializers import RepositorySerializer
 from pilot.services import RepositoryService
 
@@ -15,22 +16,24 @@ class RepositoryViewSet(APIView):
     service = RepositoryService()
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         is_create = self.service.subscribe_repository(
             request.user, serializer.validated_data
         )
         if not is_create:
             return Response(
-                {"error": "Repository not found"}, status=status.HTTP_404_NOT_FOUND
+                {"error": str(RepositoryNotFoundException())},
+                status=status.HTTP_404_NOT_FOUND,
             )
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, repo_name):
         is_delete = self.service.unsubscribe_repository(request.user, repo_name)
         if not is_delete:
             return Response(
-                {"error": "Repository not found"}, status=status.HTTP_404_NOT_FOUND
+                {"error": str(RepositoryNotFoundException())},
+                status=status.HTTP_404_NOT_FOUND,
             )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -44,6 +47,7 @@ class IssueHistoryView(APIView):
         history = self.service.get_issue_timeline(repo_name, request.user, issue_id)
         if history is None:
             return Response(
-                {"error": "Repository not found"}, status=status.HTTP_404_NOT_FOUND
+                {"error": str(RepositoryNotFoundException())},
+                status=status.HTTP_404_NOT_FOUND,
             )
         return Response(history, status=status.HTTP_200_OK)
