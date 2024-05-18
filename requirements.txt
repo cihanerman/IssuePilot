@@ -8,3 +8,5 @@ django-filter==24.2
 django-celery-results==2.5.1
 requests==2.31.0
 cryptography==42.0.7
+gevent==24.2.1
+gunicorn==22.0.0

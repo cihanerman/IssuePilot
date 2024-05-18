@@ -30,7 +30,7 @@ FERNET_KEY = os.getenv(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", default=True)
+DEBUG = os.getenv("DEBUG", default="True").lower() in ("yes", "true", "t", "1")
 
 ALLOWED_HOSTS = ["*"]
 
@@ -52,6 +52,9 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "django_celery_results",
 ]
+
+if not DEBUG:
+    INSTALLED_APPS.append("django_extensions")
 
 
 MIDDLEWARE = [
@@ -156,11 +159,12 @@ CELERY_BROKER_URL = os.getenv(
     default=os.getenv("REDIS_URL", default="redis://localhost:6379/1"),
 )
 CELERY_TIMEZONE = os.getenv("TIMEZONE", default="Europe/Istanbul")
-# CELERY_TASK_TRACK_STARTED = True
-# CELERY_TASK_TIME_LIMIT = 30 * 60
-# CELERY_RESULT_SERIALIZER = 'json'
-# CELERY_TASK_SERIALIZER = 'json'
-# CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TASK_SERIALIZER = "json"
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_TASK_DEFAULT_QUEUE = "default"
+
 
 LOGGING = {
     "version": 1,
@@ -180,3 +184,11 @@ LOGGING = {
         "level": "INFO",
     },
 }
+
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "admin@localhost")
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.getenv("EMAIL_HOST", "0.0.0.0")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 1025))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", False)

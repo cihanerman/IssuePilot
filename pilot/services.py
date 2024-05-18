@@ -9,9 +9,13 @@ class RepositoryService:
     Service class for managing repositories.
     """
 
-    client = GitHubClient()
+    clients = {
+        RepositoryTypes.GITHUB.value: GitHubClient(),
+    }
 
-    def get_or_create_repository(self, data: dict) -> Repository | None:
+    def get_or_create_repository(
+        self, data: dict, repository_type: int = RepositoryTypes.GITHUB.value
+    ) -> Repository | None:
         """
         Creates a new repository if it doesn't exist, or returns an existing repository.
 
@@ -27,7 +31,7 @@ class RepositoryService:
             )
             return repository
         except Repository.DoesNotExist:
-            is_there = self.client.check_repository(
+            is_there = self.clients[repository_type].check_repository(
                 data["name"], data["owner"], data["token"]
             )
             if not is_there:
@@ -79,7 +83,7 @@ class RepositoryService:
             )
         except Repository.DoesNotExist:
             return None
-        return self.client.get_issue_timeline(
+        return self.clients[repository_type].get_issue_timeline(
             repository.name, repository.owner, issue_id, user.get_github_token
         )
 
@@ -101,3 +105,25 @@ class RepositoryService:
             return False
         repository.users.remove(user)
         return True
+
+    def check_create_or_update_issues(
+        self,
+        repo_name: str,
+        owner: str,
+        token: str,
+        repository_type: int = RepositoryTypes.GITHUB.value,
+    ) -> bool:
+        """
+        Checks if there are any updated issues in a repository.
+
+        Args:
+            repo_name (str): The name of the repository.
+            owner (str): The owner of the repository.
+            token (str): The authentication token.
+
+        Returns:
+            bool: True if there are updated issues, False otherwise.
+        """
+        return self.clients[repository_type].check_create_or_update_issues(
+            repo_name, owner, token
+        )

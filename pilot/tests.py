@@ -6,6 +6,11 @@ from pilot.enums import RepositoryTypes
 from pilot.exceptions import TooManyRequestException
 from pilot.serializers import RepositorySerializer
 from pilot.services import RepositoryService
+from pilot.tasks import (
+    check_repositories_update,
+    check_users_repositories_update,
+    send_email_for_updated_repository,
+)
 from users.services import UserService
 
 
@@ -190,7 +195,9 @@ def test_get_or_create_repository_success(repository_service, monkeypatch):
         "token": "test_token",
     }
     monkeypatch.setattr(
-        repository_service.client, "check_repository", get_repository_mock
+        repository_service.clients[RepositoryTypes.GITHUB.value],
+        "check_repository",
+        get_repository_mock,
     )
 
     repository = repository_service.get_or_create_repository(data)
@@ -206,7 +213,9 @@ def test_get_or_create_repository_failure(repository_service, monkeypatch):
         "token": "test_token",
     }
     monkeypatch.setattr(
-        repository_service.client, "check_repository", get_repository_mock
+        repository_service.clients[RepositoryTypes.GITHUB.value],
+        "check_repository",
+        get_repository_mock,
     )
     repository = repository_service.get_or_create_repository(data)
     assert repository is None
@@ -220,7 +229,9 @@ def test_subscribe_repository_success(repository_service, user_service, monkeypa
         "owner": "test",
     }
     monkeypatch.setattr(
-        repository_service.client, "check_repository", get_repository_mock
+        repository_service.clients[RepositoryTypes.GITHUB.value],
+        "check_repository",
+        get_repository_mock,
     )
 
     serializer = RepositorySerializer(data=data)
@@ -240,7 +251,9 @@ def test_subscribe_repository_failure(repository_service, user_service, monkeypa
         "owner": "test",
     }
     monkeypatch.setattr(
-        repository_service.client, "check_repository", get_repository_mock
+        repository_service.clients[RepositoryTypes.GITHUB.value],
+        "check_repository",
+        get_repository_mock,
     )
 
     serializer = RepositorySerializer(data=data)
@@ -256,7 +269,9 @@ def test_subscribe_repository_failure(repository_service, user_service, monkeypa
 @pytest.mark.django_db
 def test_unsubscribe_repository_success(repository_service, user_service, monkeypatch):
     monkeypatch.setattr(
-        repository_service.client, "check_repository", get_repository_mock
+        repository_service.clients[RepositoryTypes.GITHUB.value],
+        "check_repository",
+        get_repository_mock,
     )
     user = user_service.create_user(**user_data)
     repository_service.subscribe_repository(
@@ -273,7 +288,9 @@ def test_unsubscribe_repository_success(repository_service, user_service, monkey
 @pytest.mark.django_db
 def test_unsubscribe_repository_failure(repository_service, user_service, monkeypatch):
     monkeypatch.setattr(
-        repository_service.client, "check_repository", get_repository_mock
+        repository_service.clients[RepositoryTypes.GITHUB.value],
+        "check_repository",
+        get_repository_mock,
     )
     user = user_service.create_user(**user_data)
     repository_service.subscribe_repository(
@@ -287,12 +304,46 @@ def test_unsubscribe_repository_failure(repository_service, user_service, monkey
     assert not repository_service.unsubscribe_repository(user, "test1")
 
 
+def test_check_or_update_repository_success(repository_service, monkeypatch):
+    data = {
+        "repo_name": "test",
+        "repository_type": RepositoryTypes.GITHUB.value,
+        "owner": "test",
+        "token": "test",
+    }
+    monkeypatch.setattr(
+        repository_service.clients[RepositoryTypes.GITHUB.value],
+        "check_create_or_update_issues",
+        lambda *args, **kwargs: True,
+    )
+
+    assert repository_service.check_create_or_update_issues(**data)
+
+
+def test_check_or_update_repository_failure(repository_service, monkeypatch):
+    data = {
+        "repo_name": "test1",
+        "repository_type": RepositoryTypes.GITHUB.value,
+        "owner": "test",
+        "token": "test",
+    }
+    monkeypatch.setattr(
+        repository_service.clients[RepositoryTypes.GITHUB.value],
+        "check_create_or_update_issues",
+        lambda *args, **kwargs: False,
+    )
+
+    assert not repository_service.check_create_or_update_issues(**data)
+
+
 @pytest.mark.django_db
 def test_repository_view_post_success(
     api_client, user_service, monkeypatch, repository_service
 ):
     monkeypatch.setattr(
-        repository_service.client, "check_repository", get_repository_mock
+        repository_service.clients[RepositoryTypes.GITHUB.value],
+        "check_repository",
+        get_repository_mock,
     )
 
     user = user_service.create_user(**user_data)
@@ -311,7 +362,9 @@ def test_repository_view_post_failure(
     api_client, user_service, monkeypatch, repository_service
 ):
     monkeypatch.setattr(
-        repository_service.client, "check_repository", get_repository_mock
+        repository_service.clients[RepositoryTypes.GITHUB.value],
+        "check_repository",
+        get_repository_mock,
     )
 
     user = user_service.create_user(**user_data)
@@ -330,7 +383,9 @@ def test_repository_view_delete_success(
     api_client, user_service, monkeypatch, repository_service
 ):
     monkeypatch.setattr(
-        repository_service.client, "check_repository", get_repository_mock
+        repository_service.clients[RepositoryTypes.GITHUB.value],
+        "check_repository",
+        get_repository_mock,
     )
 
     user = user_service.create_user(**user_data)
@@ -353,3 +408,27 @@ def test_repository_view_delete_failure(api_client, user_service):
     api_client.force_authenticate(user=user)
     response = api_client.delete("/api/v1/repositories/unsubscribe/test1/")
     assert response.status_code == 404
+
+
+def test_send_email_for_updated_repository():
+    assert send_email_for_updated_repository("test", "test_user", "tets@gmail.com") == 1
+
+
+def test_send_email_for_updated_repository_failure():
+    assert send_email_for_updated_repository("test1", "test_user", "") == 0
+
+
+def test_check_repositories_update():
+    assert (
+        check_repositories_update("tets@gmail.com", "test", "test", "test") == "success"
+    )
+
+
+def test_check_repositories_update_failure():
+    assert check_repositories_update("test", "test", "test3", "test") == "error"
+
+
+@pytest.mark.django_db
+def test_check_users_repositories_update(user_service):
+    user_service.create_user(**user_data)
+    assert check_users_repositories_update() == "success"

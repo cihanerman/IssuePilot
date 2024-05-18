@@ -11,3 +11,6 @@ DATABASES["default"].update(  # noqa
         "PORT": os.getenv("DB_PORT", default="5432"),
     }
 )
+
+CELERY_TASK_ALWAYS_EAGER = True
+DEBUG = False
