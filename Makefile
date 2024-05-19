@@ -1,4 +1,4 @@
-target: fix isort format
+target: fix format isort
 test:
 	pytest -v
 test-cov:

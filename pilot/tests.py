@@ -6,11 +6,9 @@ from pilot.enums import RepositoryTypes
 from pilot.exceptions import TooManyRequestException
 from pilot.serializers import RepositorySerializer
 from pilot.services import RepositoryService
-from pilot.tasks import (
-    check_repositories_update,
-    check_users_repositories_update,
-    send_email_for_updated_repository,
-)
+from pilot.tasks import (check_repositories_update,
+                         check_users_repositories_update,
+                         send_email_for_updated_repository)
 from users.services import UserService
 
 
