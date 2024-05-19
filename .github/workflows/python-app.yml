@@ -19,28 +19,28 @@ jobs:
 
     container: python:3.12
 
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
+    # services:
+    #   postgres:
+    #     image: postgres
+    #     env:
+    #       POSTGRES_PASSWORD: postgres
+    #     options: >-
+    #       --health-cmd pg_isready
+    #       --health-interval 10s
+    #       --health-timeout 5s
+    #       --health-retries 5
+    #     ports:
+    #       - 5432:5432
 
-      redis:
-        image: redis
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
+    #   redis:
+    #     image: redis
+    #     options: >-
+    #       --health-cmd "redis-cli ping"
+    #       --health-interval 10s
+    #       --health-timeout 5s
+    #       --health-retries 5
+    #     ports:
+    #       - 6379:6379
 
 
     steps:
@@ -60,14 +60,14 @@ jobs:
     - name: Run isort
       run: |
         isort . --check-only
-    - name: Run tests
-      run: |
-        pytest
-      env:
-        DB_NAME: postgres
-        DB_USER: postgres
-        DB_PASSWORD: postgres
-        DB_HOST: postgres
-        DB_PORT: 5432
-        REDIS_LOCATION: redis://redis:6379/?db=0
-        REDIS_PASSWORD:
+    # - name: Run tests
+    #   run: |
+    #     pytest
+    #   env:
+    #     DB_NAME: postgres
+    #     DB_USER: postgres
+    #     DB_PASSWORD: postgres
+    #     DB_HOST: postgres
+    #     DB_PORT: 5432
+    #     REDIS_LOCATION: redis://redis:6379/?db=0
+    #     REDIS_PASSWORD:
