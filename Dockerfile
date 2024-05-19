@@ -8,6 +8,15 @@ ENV PYTHONDONTWRITEBYTECODE 1
 # Set work directory
 WORKDIR /usr/src/app
 
+RUN apk update && apk add --no-cache \
+    build-base \
+    libffi-dev \
+    python3-dev \
+    gcc \
+    musl-dev
+
+RUN pip install --upgrade pip setuptools wheel
+
 # Install Python dependencies
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt

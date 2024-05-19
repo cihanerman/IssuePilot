@@ -85,9 +85,9 @@ url_mapping = {
     "https://api.github.com/repos/test/test/issues?since=2024-05-17T08:48:50.932322+00:00&per_page=1&state=open": CheckSuccessResponse,
     "https://api.github.com/repos/test/test1/issues?since=2024-05-17T08:48:50.932322+00:00&per_page=1&state=open": CheckFail429Response,
     "https://api.github.com/repos/test/test2/issues?since=2024-05-17T08:48:50.932322+00:00&per_page=1&state=open": CheckFailResponse,
-    "https://api.github.com/repos/test/test/issues/1/timeline&per_page=100": CheckSuccessResponse,
-    "https://api.github.com/repos/test/test1/issues/1/timeline&per_page=100": CheckFail429Response,
-    "https://api.github.com/repos/test/test2/issues/1/timeline&per_page=100": CheckFailResponse,
+    "https://api.github.com/repos/test/test/issues/1/timeline?per_page=100": CheckSuccessResponse,
+    "https://api.github.com/repos/test/test1/issues/1/timeline?per_page=100": CheckFail429Response,
+    "https://api.github.com/repos/test/test2/issues/1/timeline?per_page=100": CheckFailResponse,
 }
 
 

@@ -102,14 +102,11 @@ def check_users_repositories_update(self) -> str:
         users = (
             User.objects.filter(is_active=True)
             .prefetch_related("repositories")
-            .all()
             .order_by("id")
         )
         paginator = Paginator(users, 100)
         for page in paginator.page_range:
             users_page = paginator.get_page(page)
-            if not users_page.has_next():
-                break
             for user in users_page.object_list:
                 for repository in user.repositories.all():
                     check_repositories_update.delay(
@@ -119,6 +116,8 @@ def check_users_repositories_update(self) -> str:
                         repository.owner,
                         repository.repository_type,
                     )
+            if not users_page.has_next():
+                break
     except Exception as e:
         logger.error(
             f"Error in check_users_repositories_update {self.request.id}: {str(e)}"

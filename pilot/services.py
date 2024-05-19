@@ -84,7 +84,7 @@ class RepositoryService:
         except Repository.DoesNotExist:
             return None
         return self.clients[repository_type].get_issue_timeline(
-            repository.name, repository.owner, issue_id, user.get_github_token
+            repository.name, repository.owner, issue_id, user.get_github_token()
         )
 
     def unsubscribe_repository(

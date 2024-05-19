@@ -87,7 +87,7 @@ class GitHubClient(BaseClient):
 
     repository_url = "https://api.github.com/repos/{owner}/{repo}"
     issues_url = "https://api.github.com/repos/{owner}/{repo}/issues?since={since}&per_page={per_page}&state=open"
-    timeline_url = "https://api.github.com/repos/{owner}/{repo}/issues/{issue_id}/timeline&per_page={per_page}"
+    timeline_url = "https://api.github.com/repos/{owner}/{repo}/issues/{issue_id}/timeline?per_page={per_page}"
     headers = {
         "Accept": "application/vnd.github+json",
         "Authorization": "Bearer {token}",
@@ -115,7 +115,7 @@ class GitHubClient(BaseClient):
         Returns:
             str: The ISO formatted timestamp for the past hour.
         """
-        return (timezone.now() - timedelta(hours=1)).isoformat()
+        return (timezone.now() - timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     def check_repository(self, repo_name: str, owner: str, token: str) -> bool:
         """

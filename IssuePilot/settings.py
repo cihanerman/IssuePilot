@@ -32,7 +32,7 @@ FERNET_KEY = os.getenv(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", default="True").lower() in ("yes", "true", "t", "1")
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", default="*").split(",")
 
 
 # Application definition
@@ -187,7 +187,7 @@ LOGGING = {
 
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "admin@localhost")
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = os.getenv("EMAIL_HOST", "0.0.0.0")
+EMAIL_HOST = os.getenv("EMAIL_HOST", "mailhog")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", 1025))
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
